@@ -1,10 +1,8 @@
 version: 2
-orbs:
-  rust: circleci/rust@1.6.0
 jobs:
   build-and-test:
     docker:
-      - image: circleci/rust
+      - image: circleci/rust@1.66.0
     environment:
       # Fail the build if there are warnings
       RUSTFLAGS: '-D warnings'
