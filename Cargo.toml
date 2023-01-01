@@ -16,3 +16,4 @@ name = "rust-web-server"
 actix-web = "4.2.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 reqwest = "0.11"
+serde = { version = "1.0.152", features = ["derive"]}
