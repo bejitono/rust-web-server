@@ -6,7 +6,11 @@ use std::net::TcpListener;
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let subscriber = get_subscriber("rust_web_server".into(), "info".into());
+    let subscriber = get_subscriber(
+        "rust_web_server".into(), 
+        "info".into(), 
+        std::io::stdout
+    );
     init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Faild to read configuration.");
