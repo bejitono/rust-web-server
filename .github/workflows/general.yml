@@ -1,5 +1,14 @@
 name: Rust
 
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [ opened, synchronize, reopened ]
+    branches:
+      - master
+
 env:
   CARGO_TERM_COLOR: always
 
@@ -66,7 +75,7 @@ jobs:
 
       - name: Check sqlx-data.json is up-to-date
         run: |
-          cargo sqlx prepare --check -- --bin zero2prod
+          cargo sqlx prepare --check -- --bin rust-web-server
 
       - name: Run cargo test
         uses: actions-rs/cargo@v1
