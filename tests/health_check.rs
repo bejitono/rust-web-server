@@ -1,10 +1,10 @@
 use once_cell::sync::Lazy;
-use sqlx::{Connection, Executor, PgConnection, PgPool};
-use std::net::TcpListener;
-use uuid::Uuid;
 use rust_web_server::configuration::{get_configuration, DatabaseSettings};
 use rust_web_server::startup::run;
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
+use sqlx::{Connection, Executor, PgConnection, PgPool};
+use std::net::TcpListener;
+use uuid::Uuid;
 
 // Ensure that the `tracing` stack is only initialised once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {
