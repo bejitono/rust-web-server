@@ -1,8 +1,8 @@
 use once_cell::sync::Lazy;
 use rust_web_server::configuration::{get_configuration, DatabaseSettings};
+use rust_web_server::email_client::EmailClient;
 use rust_web_server::startup::run;
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
-use rust_web_server::email_client::EmailClient;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use std::net::TcpListener;
 use uuid::Uuid;
@@ -39,14 +39,14 @@ async fn spawn_app() -> TestApp {
     configuration.database.database_name = Uuid::new_v4().to_string();
     let connection_pool = configure_database(&configuration.database).await;
 
-    let sender_email = configuration.email_client.sender()
+    let sender_email = configuration
+        .email_client
+        .sender()
         .expect("Invalide sender email address.");
-    let email_client = EmailClient::new(
-        configuration.email_client.base_url, 
-        sender_email,
-    );
+    let email_client = EmailClient::new(configuration.email_client.base_url, sender_email);
 
-    let server = run(listener, connection_pool.clone(), email_client).expect("Failed to bind address");
+    let server =
+        run(listener, connection_pool.clone(), email_client).expect("Failed to bind address");
     let _ = tokio::spawn(server);
     TestApp {
         address,
