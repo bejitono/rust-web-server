@@ -1,7 +1,6 @@
 use rust_web_server::configuration::get_configuration;
 use rust_web_server::startup::run;
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
-use secrecy::ExposeSecret;
 use sqlx::postgres::PgPoolOptions;
 use std::net::TcpListener;
 
