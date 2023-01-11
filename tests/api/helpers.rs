@@ -1,10 +1,8 @@
 use once_cell::sync::Lazy;
 use rust_web_server::configuration::{get_configuration, DatabaseSettings};
-use rust_web_server::email_client::EmailClient;
-use rust_web_server::startup::Application;
+use rust_web_server::startup::{get_connection_pool, Application};
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
 use sqlx::{Connection, Executor, PgConnection, PgPool};
-use std::net::TcpListener;
 use uuid::Uuid;
 
 // Ensure that the `tracing` stack is only initialised once using `once_cell`
@@ -37,30 +35,27 @@ impl TestApp {
     }
 }
 
-async fn spawn_app() -> TestApp {
-    // The first time `initialize` is invoked the code in `TRACING` is executed.
-    // All other invocations will instead skip execution.
+pub async fn spawn_app() -> TestApp {
     Lazy::force(&TRACING);
 
+    // Randomise configuration to ensure test isolation
     let configuration = {
         let mut c = get_configuration().expect("Failed to read configuration.");
-        // Use new db for each test case
+        // Use a different database for each test case
         c.database.database_name = Uuid::new_v4().to_string();
-        // Use random port
+        // Use a random OS port
         c.application.port = 0;
-
         c
     };
 
-    let server = build(configuration.clone())
+    // Create and migrate the database
+    configure_database(&configuration.database).await;
+
+    // Launch the application as a background task
+    let application = Application::build(configuration.clone())
         .await
         .expect("Failed to build application.");
-
-    configure_database(&configuration.database).await;
-    let server = build(configuration).await.expect("Failed to build application.");
-    let application = Application::build(configuration.clone()) .await
-        .expect("Failed to build application.");
-    let address = format!("http://127.0.0.1:{}", application.port()); 
+    let address = format!("http://localhost:{}", application.port());
     let _ = tokio::spawn(application.run_until_stopped());
 
     TestApp {
@@ -69,7 +64,7 @@ async fn spawn_app() -> TestApp {
     }
 }
 
-pub async fn configure_database(config: &DatabaseSettings) -> PgPool {
+async fn configure_database(config: &DatabaseSettings) -> PgPool {
     // Create database
     let mut connection = PgConnection::connect_with(&config.without_db())
         .await
