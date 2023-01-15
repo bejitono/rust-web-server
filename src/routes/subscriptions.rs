@@ -161,7 +161,7 @@ fn generate_subscription_token() -> String {
 #[cfg(test)]
 mod tests {
     use crate::domain::SubscriberName;
-    use claim::assert_ok;
+    use claims::assert_ok;
 
     #[test]
     fn a_256_grapheme_long_name_is_valid() {
