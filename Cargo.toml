@@ -33,6 +33,8 @@ fake = "~2.5"
 quickcheck = "1.0.3" 
 quickcheck_macros = "1.0.0"
 rand = { version = "0.8", features=["std_rng"] }
+thiserror = "1"
+anyhow = "1"
 
 [dependencies.sqlx]
 version = "0.6.2"
