@@ -2,6 +2,8 @@ use actix_web::{web, HttpResponse};
 use sqlx::PgPool;
 use uuid::Uuid;
 
+// TODO: Add error handling
+
 #[derive(serde::Deserialize)]
 pub struct Parameters {
     subscription_token: String,
