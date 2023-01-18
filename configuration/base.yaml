@@ -9,7 +9,7 @@ database:
   database_name: "newsletter"
   require_ssl: false
 email_client:
-  base_url: "localhost"
+  base_url: "https://api.postmarkapp.com"
   sender_email: "test@gmail.com"
-  authorization_token: "my-secret-token"
+  authorization_token: "8cbb8de2-efa7-4ebe-a528-8f7f4ab76eef"
   timeout_milliseconds: 10000
