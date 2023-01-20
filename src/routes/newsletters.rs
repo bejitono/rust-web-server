@@ -5,9 +5,9 @@ use actix_web::http::header::{HeaderMap, HeaderValue};
 use actix_web::http::{header, StatusCode};
 use actix_web::{web, HttpRequest, HttpResponse, ResponseError};
 use anyhow::Context;
-use secrecy::ExposeSecret;
 use secrecy::Secret;
 use sqlx::PgPool;
+use secrecy::ExposeSecret;
 
 #[derive(serde::Deserialize)]
 pub struct BodyData {
@@ -36,11 +36,18 @@ pub async fn publish_newsletter(
     email_client: web::Data<EmailClient>,
     request: HttpRequest,
 ) -> Result<HttpResponse, PublishError> {
-    let credentials = basic_authentication(request.headers()).map_err(PublishError::AuthError)?;
-    tracing::Span::current().record("username", &tracing::field::display(&credentials.username));
+    let credentials = basic_authentication(request.headers())
+        .map_err(PublishError::AuthError)?;
+    tracing::Span::current().record(
+        "username", 
+        &tracing::field::display(&credentials.username)
+    );
+    
     let user_id = validate_credentials(credentials, &pool).await?;
     tracing::Span::current().record("user_id", &tracing::field::display(&user_id));
+    
     let subscribers = get_confirmed_subscribers(&pool).await?;
+    
     for subscriber in subscribers {
         match subscriber {
             Ok(subscriber) => {
@@ -142,7 +149,7 @@ async fn validate_credentials(
         r#"
         SELECT user_id
         FROM users
-        WHERE username = $1 AND password = $2
+        WHERE username = $1 AND password_hash = $2
         "#,
         credentials.username,
         credentials.password.expose_secret()
