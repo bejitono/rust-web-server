@@ -1,9 +1,9 @@
+use argon2::password_hash::SaltString;
+use argon2::{Argon2, PasswordHasher};
 use once_cell::sync::Lazy;
 use rust_web_server::configuration::{get_configuration, DatabaseSettings};
 use rust_web_server::startup::{get_connection_pool, Application};
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
-use argon2::password_hash::SaltString;
-use argon2::{Argon2, PasswordHasher};
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use wiremock::MockServer;
