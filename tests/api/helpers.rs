@@ -2,10 +2,10 @@ use once_cell::sync::Lazy;
 use rust_web_server::configuration::{get_configuration, DatabaseSettings};
 use rust_web_server::startup::{get_connection_pool, Application};
 use rust_web_server::telemetry::{get_subscriber, init_subscriber};
+use sha3::Digest;
 use sqlx::{Connection, Executor, PgConnection, PgPool};
 use uuid::Uuid;
 use wiremock::MockServer;
-use sha3::Digest;
 
 // Ensure that the `tracing` stack is only initialised once using `once_cell`
 static TRACING: Lazy<()> = Lazy::new(|| {
@@ -140,7 +140,7 @@ async fn configure_database(config: &DatabaseSettings) -> PgPool {
 pub struct TestUser {
     pub user_id: Uuid,
     pub username: String,
-    pub password: String
+    pub password: String,
 }
 
 impl TestUser {
@@ -148,14 +148,12 @@ impl TestUser {
         Self {
             user_id: Uuid::new_v4(),
             username: Uuid::new_v4().to_string(),
-            password: Uuid::new_v4().to_string()
+            password: Uuid::new_v4().to_string(),
         }
     }
 
     async fn store(&self, pool: &PgPool) {
-        let password_hash = sha3::Sha3_256::digest(
-            self.password.as_bytes()
-        );
+        let password_hash = sha3::Sha3_256::digest(self.password.as_bytes());
         let password_hash = format!("{:x}", password_hash);
         sqlx::query!(
             "INSERT INTO users (user_id, username, password_hash) VALUES ($1, $2, $3)",
@@ -163,8 +161,8 @@ impl TestUser {
             self.username,
             password_hash,
         )
-            .execute(pool)
-            .await
-            .expect("Failed to store test user.");
+        .execute(pool)
+        .await
+        .expect("Failed to store test user.");
     }
 }
