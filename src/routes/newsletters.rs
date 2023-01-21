@@ -1,6 +1,7 @@
 use crate::domain::SubscriberEmail;
 use crate::email_client::EmailClient;
 use crate::routes::error_chain_fmt;
+use crate::telemetry::spawn_blocking_with_tracing;
 use actix_web::http::header::{HeaderMap, HeaderValue};
 use actix_web::http::{header, StatusCode};
 use actix_web::{web, HttpRequest, HttpResponse, ResponseError};
@@ -138,6 +139,7 @@ async fn get_confirmed_subscribers(
     Ok(confirmed_subscribers)
 }
 
+#[tracing::instrument(name = "Validate credentials", skip(credentials, pool))]
 async fn validate_credentials(
     credentials: Credentials,
     pool: &PgPool,
@@ -152,8 +154,10 @@ async fn validate_credentials(
         PublishError::AuthError(anyhow::anyhow!("Unknown username."))
     })?;
 
+    let current_span = tracing::Span::current();
+
     // spawn_blocking runs the provided closure on a thread dedicated to blocking operations
-    tokio::task::spawn_blocking(move || {
+    spawn_blocking_with_tracing(move || {
         // spawn_blocking requires its argument to have a 'static lifetime which is preventing us from passing references to the current function context into the closure.
         // so we move ownership of the original string into our closure, moving the parsing logic into it as well.
         verify_password_hash(
