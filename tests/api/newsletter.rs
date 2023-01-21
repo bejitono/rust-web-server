@@ -178,7 +178,6 @@ async fn non_existing_user_is_rejected() {
     );
 }
 
-
 #[tokio::test]
 async fn invalid_password_is_rejected() {
     // Arrange
@@ -187,7 +186,7 @@ async fn invalid_password_is_rejected() {
     // Random password
     let password = Uuid::new_v4().to_string();
     assert_ne!(app.test_user.password, password);
-    
+
     let response = reqwest::Client::new()
         .post(&format!("{}/newsletters", &app.address))
         .basic_auth(username, Some(password))
