@@ -1,6 +1,5 @@
-use actix_web::HttpResponse;
 use actix_web::http::header::ContentType;
-
+use actix_web::HttpResponse;
 
 pub async fn login_form() -> HttpResponse {
     HttpResponse::Ok()
