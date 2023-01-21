@@ -153,9 +153,7 @@ async fn validate_credentials(
     .ok_or_else(|| {
         PublishError::AuthError(anyhow::anyhow!("Unknown username."))
     })?;
-
-    let current_span = tracing::Span::current();
-
+    
     // spawn_blocking runs the provided closure on a thread dedicated to blocking operations
     spawn_blocking_with_tracing(move || {
         // spawn_blocking requires its argument to have a 'static lifetime which is preventing us from passing references to the current function context into the closure.
