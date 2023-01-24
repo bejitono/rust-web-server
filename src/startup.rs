@@ -2,7 +2,7 @@ use crate::configuration::DatabaseSettings;
 use crate::configuration::Settings;
 use crate::email_client::EmailClient;
 use crate::routes::{
-    confirm, health_check, home, login, login_form, publish_newsletter, subscribe,
+    confirm, health_check, home, login, login_form, publish_newsletter, subscribe, admin_dashboard,
 };
 use actix_session::SessionMiddleware;
 use actix_web::cookie::Key;
@@ -100,6 +100,7 @@ pub async fn run(
             .route("/subscriptions", web::post().to(subscribe))
             .route("/subscriptions/confirm", web::get().to(confirm))
             .route("/newsletters", web::post().to(publish_newsletter))
+            .route("/admin/dashboard", web::get().to(admin_dashboard))
             .app_data(db_pool.clone())
             // Passes email client to be accessed in our app
             .app_data(email_client.clone())
