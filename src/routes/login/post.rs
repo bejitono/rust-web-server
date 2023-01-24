@@ -1,6 +1,7 @@
 use crate::authentication::AuthError;
 use crate::authentication::{validate_credentials, Credentials};
 use crate::routes::error_chain_fmt;
+use actix_session::Session;
 use actix_web::error::InternalError;
 use actix_web::http::header::LOCATION;
 use actix_web::http::StatusCode;
@@ -8,7 +9,6 @@ use actix_web::web;
 use actix_web::HttpResponse;
 use actix_web::ResponseError;
 use actix_web_flash_messages::FlashMessage;
-use actix_session::Session;
 use hmac::{Hmac, Mac};
 use secrecy::Secret;
 use sqlx::PgPool;
@@ -43,7 +43,7 @@ pub async fn login(
             tracing::Span::current().record("user_id", &tracing::field::display(&user_id));
             session
                 .insert("user_id", user_id)
-                .map_err(|e| login_redirect(LoginError::UnexpectedError(e.into())))?;;
+                .map_err(|e| login_redirect(LoginError::UnexpectedError(e.into())))?;
             Ok(HttpResponse::SeeOther()
                 .insert_header((LOCATION, "/admin/dashboard"))
                 .finish())
@@ -97,7 +97,8 @@ impl ResponseError for LoginError {
     }
 }
 
-fn login_redirect(e: LoginError) -> InternalError<LoginError> { FlashMessage::error(e.to_string()).send();
+fn login_redirect(e: LoginError) -> InternalError<LoginError> {
+    FlashMessage::error(e.to_string()).send();
     let response = HttpResponse::SeeOther()
         .insert_header((LOCATION, "/login"))
         .finish();

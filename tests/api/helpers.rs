@@ -103,7 +103,7 @@ impl TestApp {
         ConfirmationLinks { html, plain_text }
     }
 
-    pub async fn get_admin_dashboard(&self) -> String { 
+    pub async fn get_admin_dashboard(&self) -> String {
         self.api_client
             .get(&format!("{}/admin/dashboard", &self.address))
             .send()
