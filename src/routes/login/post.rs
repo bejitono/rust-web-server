@@ -1,7 +1,6 @@
 use crate::authentication::AuthError;
 use crate::authentication::{validate_credentials, Credentials};
 use crate::routes::error_chain_fmt;
-use actix_web::cookie::Cookie;
 use actix_web::error::InternalError;
 use actix_web::http::header::LOCATION;
 use actix_web::http::StatusCode;
@@ -41,7 +40,7 @@ pub async fn login(
         Ok(user_id) => {
             tracing::Span::current().record("user_id", &tracing::field::display(&user_id));
             Ok(HttpResponse::SeeOther()
-                .insert_header((LOCATION, "/"))
+                .insert_header((LOCATION, "/admin/dashboard"))
                 .finish())
         }
         Err(e) => {

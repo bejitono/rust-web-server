@@ -1,5 +1,3 @@
-use actix_web::rt::spawn;
-
 use crate::helpers::assert_is_redirect_to;
 use crate::helpers::spawn_app;
 
