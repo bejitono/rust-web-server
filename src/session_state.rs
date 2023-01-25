@@ -23,6 +23,7 @@ impl TypedSession {
     }
 
     pub fn log_out(self) {
+        // Remove session
         self.0.purge()
     }
 }
