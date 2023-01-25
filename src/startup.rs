@@ -4,6 +4,7 @@ use crate::email_client::EmailClient;
 use crate::routes::{
     admin_dashboard, confirm, health_check, home, login, login_form, publish_newsletter, subscribe,
 };
+use crate::routes::{change_password, change_password_form};
 use actix_session::storage::RedisSessionStore;
 use actix_session::SessionMiddleware;
 use actix_web::cookie::Key;
@@ -104,6 +105,8 @@ pub async fn run(
             .route("/subscriptions/confirm", web::get().to(confirm))
             .route("/newsletters", web::post().to(publish_newsletter))
             .route("/admin/dashboard", web::get().to(admin_dashboard))
+            .route("/admin/password", web::get().to(change_password_form))
+            .route("/admin/password", web::post().to(change_password))
             .app_data(db_pool.clone())
             // Passes email client to be accessed in our app
             .app_data(email_client.clone())

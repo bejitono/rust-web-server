@@ -1,4 +1,5 @@
-use actix_web::http::header::ContentType; use actix_web::HttpResponse;
+use actix_web::http::header::ContentType;
+use actix_web::HttpResponse;
 
 pub async fn change_password_form() -> Result<HttpResponse, actix_web::Error> {
     Ok(HttpResponse::Ok().content_type(ContentType::html()).body(
@@ -39,6 +40,5 @@ pub async fn change_password_form() -> Result<HttpResponse, actix_web::Error> {
         <p><a href="/admin/dashboard">&lt;- Back</a></p>
         </body>
         </html>"#,
-        )
-    )
+    ))
 }
