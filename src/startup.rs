@@ -106,6 +106,7 @@ async fn run(
             .route("/", web::get().to(home))
             .service(
                 web::scope("/admin")
+                    // used to protect endpoints that require authentication
                     .wrap(from_fn(reject_anonymous_users))
                     .route("/dashboard", web::get().to(admin_dashboard))
                     .route("/newsletters", web::get().to(publish_newsletter_form))

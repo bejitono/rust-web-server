@@ -8,6 +8,8 @@ use actix_web_lab::middleware::Next;
 use std::ops::Deref;
 use uuid::Uuid;
 
+// The middleware inserts the information it wants to pass to downstream request handlers into the type map attached to the incoming request (request.extensions_mut()).
+// We will define a new-type wrapper, UserId, to prevent conflicts in the type map:
 #[derive(Copy, Clone, Debug)]
 pub struct UserId(Uuid);
 
