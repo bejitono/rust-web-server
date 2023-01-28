@@ -1,8 +1,8 @@
 use crate::authentication::UserId;
 use crate::domain::SubscriberEmail;
 use crate::email_client::EmailClient;
-use crate::utils::{e500, e400, see_other};
 use crate::idempotency::IdempotencyKey;
+use crate::utils::{e400, e500, see_other};
 use actix_web::web::ReqData;
 use actix_web::{web, HttpResponse};
 use actix_web_flash_messages::FlashMessage;
@@ -29,19 +29,19 @@ pub async fn publish_newsletter(
     email_client: web::Data<EmailClient>,
 ) -> Result<HttpResponse, actix_web::Error> {
     // We must destructure the form to avoid upsetting the borrow-checker
-    let FormData { title, text_content, html_content, idempotency_key } = form.0;
+    let FormData {
+        title,
+        text_content,
+        html_content,
+        idempotency_key,
+    } = form.0;
     let subscribers = get_confirmed_subscribers(&pool).await.map_err(e500)?;
     let idempotency_key: IdempotencyKey = idempotency_key.try_into().map_err(e400)?;
     for subscriber in subscribers {
         match subscriber {
             Ok(subscriber) => {
                 email_client
-                    .send_email(
-                        &subscriber.email,
-                        &title,
-                        &html_content,
-                        &text_content,
-                    )
+                    .send_email(&subscriber.email, &title, &html_content, &text_content)
                     .await
                     .with_context(|| {
                         format!("Failed to send newsletter issue to {}", subscriber.email)

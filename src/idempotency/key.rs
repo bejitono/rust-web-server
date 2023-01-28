@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub struct IdempotencyKey;
+pub struct IdempotencyKey(String);
 
 impl TryFrom<String> for IdempotencyKey {
     type Error = anyhow::Error;
