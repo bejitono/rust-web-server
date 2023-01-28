@@ -1,11 +1,12 @@
 use super::IdempotencyKey;
-use actix_web::HttpResponse;
 use actix_web::http::StatusCode;
+use actix_web::HttpResponse;
 use actix_web_lab::__reexports::futures_util::future::ok;
 use sqlx::PgPool;
 use uuid::Uuid;
 
-#[derive(Debug, sqlx::Type)] #[sqlx(type_name = "header_pair")]
+#[derive(Debug, sqlx::Type)]
+#[sqlx(type_name = "header_pair")]
 struct HeaderPairRecord {
     name: String,
     value: Vec<u8>,
@@ -33,9 +34,7 @@ pub async fn get_saved_response(
     .await?;
 
     if let Some(r) = saved_response {
-        let status_code = StatusCode::from_u16(
-            r.response_status_code.try_into()?
-        )?;
+        let status_code = StatusCode::from_u16(r.response_status_code.try_into()?)?;
         let mut response = HttpResponse::build(status_code);
         for HeaderPairRecord { name, value } in r.response_headers {
             response.append_header((name, value));

@@ -1,6 +1,7 @@
 use crate::authentication::UserId;
 use crate::domain::SubscriberEmail;
 use crate::email_client::EmailClient;
+use crate::idempotency::get_saved_response;
 use crate::idempotency::IdempotencyKey;
 use crate::utils::{e400, e500, see_other};
 use actix_web::web::ReqData;
@@ -27,7 +28,9 @@ pub async fn publish_newsletter(
     user_id: ReqData<UserId>,
     pool: web::Data<PgPool>,
     email_client: web::Data<EmailClient>,
+    req_user_id: ReqData<UserId>,
 ) -> Result<HttpResponse, actix_web::Error> {
+    let user_id = req_user_id.into_inner();
     // We must destructure the form to avoid upsetting the borrow-checker
     let FormData {
         title,
@@ -35,8 +38,16 @@ pub async fn publish_newsletter(
         html_content,
         idempotency_key,
     } = form.0;
-    let subscribers = get_confirmed_subscribers(&pool).await.map_err(e500)?;
     let idempotency_key: IdempotencyKey = idempotency_key.try_into().map_err(e400)?;
+    if let Some(saved_response) = get_saved_response(&pool, &idempotency_key, *user_id)
+        .await
+        .map_err(e500)?
+    {
+        return Ok(saved_response);
+    }
+
+    let subscribers = get_confirmed_subscribers(&pool).await.map_err(e500)?;
+
     for subscriber in subscribers {
         match subscriber {
             Ok(subscriber) => {
