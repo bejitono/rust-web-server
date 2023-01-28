@@ -2,6 +2,7 @@ use super::IdempotencyKey;
 use actix_web::body::to_bytes;
 use actix_web::http::StatusCode;
 use actix_web::HttpResponse;
+use sqlx::postgres::PgHasArrayType;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -63,9 +64,32 @@ pub async fn save_response(
         }
         h
     };
-
-    // TODO: SQL query
+    sqlx::query_unchecked!(
+        r#"
+        INSERT INTO idempotency (
+            user_id,
+            idempotency_key,
+            response_status_code,
+            response_headers,
+            response_body,
+            created_at
+        )
+        VALUES ($1, $2, $3, $4, $5, now()) "#,
+        user_id,
+        idempotency_key.as_ref(),
+        status_code,
+        headers,
+        body.as_ref()
+    )
+    .execute(pool)
+    .await?;
 
     let http_response = response_head.set_body(body).map_into_boxed_body();
     Ok(http_response)
+}
+
+impl PgHasArrayType for HeaderPairRecord {
+    fn array_type_info() -> sqlx::postgres::PgTypeInfo {
+        sqlx::postgres::PgTypeInfo::with_name("_header_pair")
+    }
 }
